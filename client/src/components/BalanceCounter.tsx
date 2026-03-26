@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp, Wind, Zap } from 'lucide-react';
+import { TrendingUp, Wind, Zap, Settings } from 'lucide-react';
 import DailyBalanceCounter from './DailyBalanceCounter';
 import BreathingMode from './BreathingMode';
 import WarmupMode from './WarmupMode';
+import GoalModal from './GoalModal';
 
 /**
  * Design Philosophy: Modern Financial Dashboard
@@ -11,18 +12,32 @@ import WarmupMode from './WarmupMode';
  * - Pulsing counter with orbital indicators
  * - Real-time balance updates every second
  * - Integrated wellness modes (breathing, warmup)
+ * - Customizable monthly goal with localStorage persistence
  */
 
 interface BalanceCounterProps {
   monthlyAmount?: number;
 }
 
-export default function BalanceCounter({ monthlyAmount = 32000 }: BalanceCounterProps) {
+export default function BalanceCounter({ monthlyAmount: initialAmount = 32000 }: BalanceCounterProps) {
+  const [monthlyAmount, setMonthlyAmount] = useState(initialAmount);
   const [balance, setBalance] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
   const [monthProgress, setMonthProgress] = useState(0);
   const [showBreathingMode, setShowBreathingMode] = useState(false);
   const [showWarmupMode, setShowWarmupMode] = useState(false);
+  const [showGoalModal, setShowGoalModal] = useState(false);
+
+  // Load goal from localStorage on mount
+  useEffect(() => {
+    const savedGoal = localStorage.getItem('monthlyGoal');
+    if (savedGoal) {
+      const parsedGoal = parseFloat(savedGoal);
+      if (!isNaN(parsedGoal) && parsedGoal > 0) {
+        setMonthlyAmount(parsedGoal);
+      }
+    }
+  }, []);
 
   // Calculate seconds in current month
   const getCurrentMonthSeconds = () => {
@@ -69,6 +84,10 @@ export default function BalanceCounter({ monthlyAmount = 32000 }: BalanceCounter
     return () => clearInterval(interval);
   }, [perSecondRate]);
 
+  const handleGoalChange = (newGoal: number) => {
+    setMonthlyAmount(newGoal);
+  };
+
   const totalSeconds = getCurrentMonthSeconds();
   const secondsElapsed = getSecondsElapsedInMonth();
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
@@ -85,16 +104,31 @@ export default function BalanceCounter({ monthlyAmount = 32000 }: BalanceCounter
       {/* Modals */}
       {showBreathingMode && <BreathingMode onClose={() => setShowBreathingMode(false)} perSecondRate={perSecondRate} />}
       {showWarmupMode && <WarmupMode onClose={() => setShowWarmupMode(false)} perSecondRate={perSecondRate} />}
+      <GoalModal 
+        isOpen={showGoalModal} 
+        onClose={() => setShowGoalModal(false)} 
+        currentGoal={monthlyAmount}
+        onGoalChange={handleGoalChange}
+      />
 
       <div className="relative z-10 w-full max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-12">
+        {/* Header with settings button */}
+        <div className="text-center mb-12 relative">
           <h1 className="text-5xl md:text-6xl font-bold text-slate-900 mb-3">
             Balance Counter
           </h1>
-          <p className="text-lg text-slate-600">
+          <p className="text-lg text-slate-600 mb-4">
             Ежесекундное пополнение счёта + здоровье
           </p>
+          
+          {/* Settings button */}
+          <button
+            onClick={() => setShowGoalModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-medium transition-colors border border-emerald-300"
+          >
+            <Settings className="w-4 h-4" />
+            Изменить цель
+          </button>
         </div>
 
         {/* Main layout: Counter + Daily sidebar */}
