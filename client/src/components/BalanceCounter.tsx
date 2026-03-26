@@ -275,7 +275,7 @@ export default function BalanceCounter({ monthlyAmount: initialAmount = 32000 }:
           </div>
 
           {/* Daily counter sidebar */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 hidden lg:block">
             <DailyBalanceCounter dailyAmount={monthlyAmount / 31} />
           </div>
         </div>
