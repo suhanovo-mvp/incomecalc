@@ -155,15 +155,15 @@ export default defineConfig({
   plugins,
   resolve: {
     alias: {
-      "@": path.resolve("./client/src"),
-      "@shared": path.resolve("./shared"),
-      "@assets": path.resolve("./attached_assets"),
+      "@": path.join(process.cwd(), "client/src"),
+      "@shared": path.join(process.cwd(), "shared"),
+      "@assets": path.join(process.cwd(), "attached_assets"),
     },
   },
-  envDir: ".",
-  root: "./client",
+  envDir: process.cwd(),
+  root: path.join(process.cwd(), "client"),
   build: {
-    outDir: "./dist",
+    outDir: path.join(process.cwd(), "dist"),
     emptyOutDir: true,
     rollupOptions: {
       output: {
