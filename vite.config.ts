@@ -158,6 +158,7 @@ export default defineConfig({
       "@": path.join(process.cwd(), "client/src"),
       "@shared": path.join(process.cwd(), "shared"),
       "@assets": path.join(process.cwd(), "attached_assets"),
+      "@/components/ui/sonner": path.join(process.cwd(), "client/src/components/ui/sonner.tsx"),
     },
   },
   envDir: process.cwd(),
